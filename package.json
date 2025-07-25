@@ -1,0 +1,216 @@
+{
+  "backend_package_json": {
+    "name": "loan-management-backend",
+    "version": "1.0.0",
+    "description": "Loan Management System Backend API",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js",
+      "dev": "nodemon server.js",
+      "seed": "node scripts/seedData.js",
+      "test": "jest",
+      "lint": "eslint . --ext .js"
+    },
+    "keywords": ["loan", "management", "debt", "collection", "api"],
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.18.2",
+      "mongoose": "^7.5.0",
+      "cors": "^2.8.5",
+      "helmet": "^7.0.0",
+      "morgan": "^1.10.0",
+      "dotenv": "^16.3.1",
+      "bcryptjs": "^2.4.3",
+      "jsonwebtoken": "^9.0.2",
+      "express-rate-limit": "^6.10.0",
+      "express-validator": "^7.0.1",
+      "compression": "^1.7.4"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.1",
+      "jest": "^29.6.4",
+      "supertest": "^6.3.3",
+      "eslint": "^8.47.0"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  },
+
+
+
+  "render_yaml": {
+    "services": [
+      {
+        "type": "web",
+        "name": "loan-management-api",
+        "env": "node",
+        "buildCommand": "npm install",
+        "startCommand": "npm start",
+        "envVars": [
+          {
+            "key": "NODE_ENV",
+            "value": "production"
+          },
+          {
+            "key": "MONGODB_URI",
+            "fromDatabase": {
+              "name": "loan-management-db",
+              "property": "connectionString"
+            }
+          },
+          {
+            "key": "JWT_SECRET",
+            "generateValue": true
+          },
+          {
+            "key": "FRONTEND_URL",
+            "value": "https://your-frontend-app.netlify.app"
+          }
+        ]
+      }
+    ],
+    "databases": [
+      {
+        "name": "loan-management-db",
+        "databaseName": "loan_management",
+        "user": "loan_user"
+      }
+    ]
+  },
+
+  "netlify_toml": {
+    "build": {
+      "publish": "build",
+      "command": "npm run build"
+    },
+    "redirects": [
+      {
+        "from": "/api/*",
+        "to": "https://your-backend-app.onrender.com/api/:splat",
+        "status": 200,
+        "force": false
+      },
+      {
+        "from": "/*",
+        "to": "/index.html",
+        "status": 200
+      }
+    ],
+    "headers": [
+      {
+        "for": "/*",
+        "values": {
+          "X-Frame-Options": "DENY",
+          "X-XSS-Protection": "1; mode=block",
+          "X-Content-Type-Options": "nosniff",
+          "Referrer-Policy": "strict-origin-when-cross-origin"
+        }
+      }
+    ]
+  },
+
+ 
+
+  "seed_data_script": [
+    "const mongoose = require('mongoose');",
+    "const bcrypt = require('bcryptjs');",
+    "require('dotenv').config();",
+    "",
+    "const User = require('./models/User');",
+    "const Customer = require('./models/Customer');",
+    "const Loan = require('./models/Loan');",
+    "",
+    "const connectDB = async () => {",
+    "  try {",
+    "    await mongoose.connect(process.env.MONGODB_URI);",
+    "    console.log('MongoDB Connected');",
+    "  } catch (error) {",
+    "    console.error('Database connection error:', error);",
+    "    process.exit(1);",
+    "  }",
+    "};",
+    "",
+    "const seedData = async () => {",
+    "  try {",
+    "    // Clear existing data",
+    "    await User.deleteMany({});",
+    "    await Customer.deleteMany({});",
+    "    await Loan.deleteMany({});",
+    "",
+    "    // Create admin user",
+    "    const adminUser = await User.create({",
+    "      username: 'admin',",
+    "      email: 'admin@loanmanagement.com',",
+    "      password: 'admin123',",
+    "      role: 'admin'",
+    "    });",
+    "",
+    "    // Create sample customer",
+    "    const customer = await Customer.create({",
+    "      customerTitle: 'Mr',",
+    "      gender: 'Male',",
+    "      maritalStatus: 'Married',",
+    "      firstName: 'Abrosola',",
+    "      lastName: 'Jigun',",
+    "      phone: '08000000000',",
+    "      email: 'ajigun@email.com',",
+    "      nationality: 'Nigerian',",
+    "      placeOfBirth: 'Kano',",
+    "      contactAddress: '1 Contoso Lane, Lagos',",
+    "      qualification: 'School Cert',",
+    "      nok: 'Bill Gates',",
+    "      nokRelationship: 'Son',",
+    "      nokNumber: '08033333333',",
+    "      nokAddress: '1 Fabrikam Road, Katsina, Lagos',",
+    "      dateOfBirth: new Date('1940-12-10'),",
+    "      tradeAssoName: 'MOMTAN',",
+    "      tradeSpecialization: 'Body Works',",
+    "      tradeNumber: '00',",
+    "      tradeMonthlyIncome: '0',",
+    "      employMode: 'Status',",
+    "      jobTitle: 'Painter',",
+    "      companyName: 'Self employed',",
+    "      companyAddress: '99 Line B, Mechanic Village',",
+    "      companyIndustry: 'Industry',",
+    "      nameOfBank: 'uba',",
+    "      accountName: 'Abiola Lawal',",
+    "      accountNumber: '222222222',",
+    "      bvn: '3333333333',",
+    "      customerid: 'cs36512',",
+    "      category: 'Association'",
+    "    });",
+    "",
+    "    // Create sample loan",
+    "    await Loan.create({",
+    "      type: 'Business',",
+    "      description: 'Working Capital',",
+    "      principal: 500000,",
+    "      interestRate: 6,",
+    "      upfrontAmount: 5000,",
+    "      requiredDate: new Date('2024-06-08'),",
+    "      dueDate: new Date('2024-12-08'),",
+    "      customer: customer._id,",
+    "      status: 'open',",
+    "      loaned: 'ln30500',",
+    "      balance: 250000,",
+    "      bookedDate: new Date('2024-06-08'),",
+    "      estimatedBalance: 290900,",
+    "      estimatedInterest: 30900,",
+    "      interestIncurred: 15000,",
+    "      tenure: 153",
+    "    });",
+    "",
+    "    console.log('Sample data created successfully');",
+    "    console.log('Admin credentials: admin / admin123');",
+    "  } catch (error) {",
+    "    console.error('Seed data error:', error);",
+    "  } finally {",
+    "    mongoose.connection.close();",
+    "  }",
+    "};",
+    "",
+    "connectDB().then(seedData);"
+  ]
+}
